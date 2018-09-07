@@ -3,7 +3,7 @@ class G7K15{
         double G7_, K15_, I_;
         double K_[15];
         double a_, b_;
-        double up_, mid_, down_;
+        double up_, down_;
         double int_, neg_int_;
         double error_;
         double tol_;
