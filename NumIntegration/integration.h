@@ -1,12 +1,9 @@
 void integrate(){
     G7K15 solver(0, 2);
 
-    solver.set_function(exponential);
+    solver.set_function(sine);
 
-    solver.calc_subintervals();
-    solver.calc_points();
-
-    solver.calc_K15();
+    solver.adaptive_integral();
 
     std::cout << solver.get_integral() << std::endl;
 }

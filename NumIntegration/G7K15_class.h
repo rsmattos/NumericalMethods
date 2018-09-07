@@ -2,7 +2,8 @@ class G7K15{
     private:
         double G7_, K15_, I_;
         double K_[15];
-        double up_, down_;
+        double a_, b_;
+        double up_, mid_, down_;
         double int_, neg_int_;
         double error_;
         double tol_;
@@ -13,23 +14,42 @@ class G7K15{
 
     public:
         // constructors
-        G7K15(){}
-        G7K15(double down, double up){
-            down_ = down;
-            up_ = up;
-        }
+        G7K15();
+        G7K15(double down, double up);
         
         // setting things
         void set_function(fptr func){function_ = func;}
-
+        void set_tol(double tol){tol_ = tol;}
+        void set_limits(double down, double up);
         // get values
-        double get_integral(){return K15_;}
+        double get_integral(){return I_;}
 
         void calc_subintervals();
         void calc_points();
         void calc_G7();
         void calc_K15();
+        void calc_error();
+        void adaptive_integral();
+        void adaptive_integral(double down, double up);
 };
+
+inline G7K15::G7K15(){
+    I_ = 0;
+    tol_ = 1.e-5;
+}
+
+inline G7K15::G7K15(double down, double up){
+    I_ = 0;
+    tol_ = 1.e-5;
+
+    a_ = down;
+    b_ = up;
+}
+
+inline void G7K15::set_limits(double down, double up){
+    a_ = down;
+    b_ = up;
+}
 
 inline void G7K15::calc_subintervals(){
     int_ = (up_ + down_)/2.;
@@ -82,4 +102,33 @@ inline void G7K15::calc_K15(){
         1.0479001032225018e-1*K_[12] +
         6.3092092629978553e-2*K_[13] +
         2.2935322010529225e-2*K_[14]);
+}
+
+inline void G7K15::calc_error(){
+    error_ = fabs(G7_ - K15_);
+}
+
+inline void G7K15::adaptive_integral(){
+    adaptive_integral(a_, b_);
+}
+
+inline void G7K15::adaptive_integral(double down, double up){
+    down_ = down;
+    up_ = up;
+
+    calc_subintervals();
+    calc_points();
+    calc_G7();
+    calc_K15();
+    calc_error();
+
+    if(error_ < tol_){
+        I_ += K15_;
+    }
+    else{
+        tol_ = tol_/2.;
+        adaptive_integral(down, (up + down)/2.);
+        adaptive_integral((up + down)/2., up);
+        tol_ = tol_*2.;
+    }
 }
